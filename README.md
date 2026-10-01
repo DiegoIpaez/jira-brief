@@ -30,9 +30,9 @@ Vite imprime la URL local (por defecto `http://localhost:5173`).
 
 ### 1. Exportá el CSV desde Jira
 
-En tu instancia de Jira: **Issues → Export (CSV)**, y elegí las columnas **Clave de incidencia**, **Resumen**, **Tiempo empleado (Σ)**, **Persona asignada**, **Estado**, **Creada** y **Actualizada**.
+En tu instancia de Jira: **Issues → Export (CSV)**, y elegí las columnas **Clave de incidencia**, **Resumen**, **Tiempo empleado (Σ)**, **Persona asignada**, **Estado**, **Creada** y **Actualizada** (en inglés: **Issue key**, **Summary**, **Σ Time Spent**, **Assignee**, **Status**, **Created**, **Updated**).
 
-> **Importante:** los encabezados del CSV tienen que coincidir exactamente con los que produce una Jira en español (ver [Formato del CSV](#formato-del-csv)). Si tu Jira está en inglés, el archivo va a ser rechazado con el detalle de las columnas que faltan.
+> **Importante:** los encabezados se aceptan en español **o** en inglés (ver [Formato del CSV](#formato-del-csv)), así que la exportación funciona en cualquiera de los dos idiomas. El reconocimiento ignora mayúsculas, espacios sobrantes, el BOM y el símbolo `Σ`. Si falta alguna columna obligatoria, la app se detiene y te dice cuáles encontró y cuáles le faltan.
 
 ### 2. Indicá la URL de Jira
 
@@ -54,31 +54,34 @@ Ajustá **Desde** / **Hasta** y el campo por el que se filtra. El rango es inclu
 
 ### Columnas obligatorias
 
-| Columna | Uso | Valor por defecto |
-| --- | --- | --- |
-| `Clave de incidencia` | Clave del ticket y destino del enlace | — |
-| `Resumen` | Descripción de la incidencia | — |
-| `Σ Tiempo empleado` | Tiempo en **segundos** (ej. `5400` = 1 h 30 min) | `0` |
-| `Persona asignada` | Agrupación del resumen por persona | `Sin asignar` |
-| `Estado` | Estado de la incidencia | `—` |
-| `Creada` | Fecha de creación, usada al filtrar por *Creada* | — |
-| `Actualizada` | Fecha de actualización, usada al filtrar por *Actualizada* | — |
+| Español | Inglés | Uso | Valor por defecto |
+| --- | --- | --- | --- |
+| `Clave de incidencia` | `Issue key` | Clave del ticket y destino del enlace | — |
+| `Resumen` | `Summary` | Descripción de la incidencia | — |
+| `Σ Tiempo empleado` | `Σ Time Spent` | Tiempo en **segundos** (ej. `5400` = 1 h 30 min) | `0` |
+| `Persona asignada` | `Assignee` | Agrupación del resumen por persona | `Sin asignar` |
+| `Estado` | `Status` | Estado de la incidencia | `—` |
+| `Creada` | `Created` | Fecha de creación, usada al filtrar por *Creada* | — |
+| `Actualizada` | `Updated` | Fecha de actualización, usada al filtrar por *Actualizada* | — |
 
-Si falta alguna columna obligatoria, la app se detiene y muestra cuáles encontró y cuáles le faltan.
+El idioma se detecta por los encabezados, no por el contenido, así que un archivo en español y otro en inglés producen exactamente el mismo reporte.
 
 ### Fechas
 
-El formato esperado es el que exporta Jira en español:
+El formato esperado es `d/mes/aa h:mm am|pm`, que es el que exportan las dos variantes de Jira:
 
 ```
-01/09/2026 10:15 am
-1/sep/26 10:15 pm
+23/sep/26 10:12 am
+23/Sep/26 10:12 AM
 ```
 
-- `dd/mm/aaaa` (o `d/mes/aa`), dos años se expanden a `20xx` / `19xx`.
-- Mes en abreviatura en español: `ene`, `feb`, `mar`, `abr`, `may`, `jun`, `jul`, `ago`, `sep`, `oct`, `nov`, `dic`.
-- Hora en formato de 12 horas con `am` / `pm`. Cualquier otra cosa se considera fecha inválida y la fila se omite.
+- `dd/mm/aaaa` o `d/mes/aa`. Los años de 2 dígitos se expanden con corte en 68: `26` → 2026, `68` → 2068, `69` → 1969.
+- Mes en abreviatura, en español **o** en inglés: `ene`/`jan`, `feb`, `mar`, `abr`/`apr`, `may`, `jun`, `jul`, `ago`/`aug`, `sep`, `oct`, `nov`, `dic`/`dec`.
+- Hora en formato de 12 horas con `am` / `pm` (no distingue mayúsculas). `12:00 am` es medianoche y `12:30 pm` es mediodía.
+- Cualquier otra cosa se considera fecha inválida y la fila se omite.
 
+> Limitación conocida: el mes debe ir **en abreviatura alfabética**, no numérico — `01/09/2026 10:15 am` no se interpreta. Tampoco se soportan los formatos ISO (`2026-09-01T10:15`), las horas de 24 h ni el mes en texto completo (`23/September/26`). Esto cubre los dos idiomas de Jira, pero no una instancia con `jira.date.time.picker.java.format` configurado con un token distinto.
+>
 > Ojo con septiembre: el parser acepta `sep` pero no `sept`. Si tu Jira exporta `sept`, esas filas se van a omitir y la app te avisa cuántas fueron.
 
 ### Tiempo empleado
@@ -93,6 +96,8 @@ El valor debe ser un **número en segundos**. Valores vacíos, no numéricos o `
 | `npm run build` | Type-check (`tsc -b`) + build de producción en `dist/`. |
 | `npm run preview` | Sirve el build de producción localmente. |
 | `npm run lint` | Lint con [oxlint](https://oxc.rs) (`.oxlintrc.json`). |
+| `npm test` | Corre la suite de [Vitest](https://vitest.dev) una vez. |
+| `npm run test:watch` | Vitest en modo interactivo. |
 
 El lint corre con las reglas `react/rules-of-hooks` y `react/only-export-components`. Si querés habilitar las reglas con información de tipos, instalá `oxlint-tsgolint` y agregá `options.typeAware: true` a `.oxlintrc.json` (el build ya falla igual si hay errores de tipos, porque `npm run build` corre `tsc -b` primero).
 
@@ -103,6 +108,7 @@ El lint corre con las reglas `react/rules-of-hooks` y `react/only-export-compone
 - **papaparse** — parsing del CSV
 - **jspdf** + **jspdf-autotable** — generación del PDF
 - **oxlint** — linter
+- **vitest** — tests del parser de CSV y de fechas
 
 No hay librería de estilos: el CSS es propio y vive en `src/index.css`. La interfaz está en español y declara `lang="es"`.
 
@@ -120,19 +126,29 @@ src/
 │   ├── PreviewTable.tsx       # Detalle de incidencias con enlaces
 │   └── Summary.tsx            # Tarjetas + tabla por persona asignada
 ├── lib/
-│   ├── csv.ts                 # Validación de encabezados y parseo a `Issue`
+│   ├── csv.ts                 # Alias de encabezados ES/EN y parseo a `Issue`
+│   ├── csv.test.ts            # Suite del parseo del CSV
 │   ├── aggregate.ts           # Totales, conteos y agrupación por assignee
 │   └── pdf.ts                 # Layout del PDF (header, tablas, pie)
 └── utils/
     ├── date.util.ts           # Parseo y formato de fechas de Jira
+    ├── date.util.test.ts      # Suite de fechas (formatos, meses, bordes)
     ├── time.util.ts           # Segundos → "1 h 30 min"
     ├── jira.util.ts           # Normalización de URL y armado de enlaces
     └── validation.util.ts     # Aplanado de errores del form
 ```
 
+### Tests
+
+```bash
+npm test
+```
+
+70 casos sobre las dos partes que tienen lógica real: el parseo de fechas (`date.util.test.ts`) y el reconocimiento de columnas + parseo del CSV (`csv.test.ts`). Ambos usan el mismo archivo de ejemplo — una exportación real de Jira en inglés — para que cualquier cambio en el formato de la exportación se note en los tests y no en el reporte de un cliente.
+
 ## Cómo funciona por dentro
 
-1. `parseCsv` (`lib/csv.ts`) normaliza los encabezados (quita BOM y espacios), exige las 7 columnas, parsea `Creada` y `Actualizada` con `parseJiraDate` y descarta las filas con fecha inválida. Devuelve un resultado discriminado: `{ ok: true, ... }` o `{ ok: false, error }`.
+1. `parseCsv` (`lib/csv.ts`) resuelve cada columna obligatoria contra una lista de alias en español e inglés (ignorando mayúsculas, espacios, BOM y `Σ`), parsea `Creada` y `Actualizada` con `parseJiraDate` y descarta las filas con fecha inválida. Devuelve un resultado discriminado: `{ ok: true, ... }` o `{ ok: false, error }`.
 2. `App.tsx` filtra en memoria con `dayKey` (un entero `aaaammdd`, que ordena y compara sin `Date`), y de ahí salen `totalSeconds` y los datos agregados.
 3. La descarga usa `import('./lib/pdf')` — el código de PDF se carga recién al hacer clic, así que jsPDF no entra en el bundle inicial.
 4. `buildPdf` genera un A4 apaisado: encabezado con el rango, tabla de incidencias con `showHead: 'everyPage'` y `pageBreak: 'auto'`, tabla resumen por persona, contadores de incidencias sin tiempo y numeración de páginas. Los enlaces se agregan en `didDrawCell` con `jspdf.link` sobre la columna de la clave.

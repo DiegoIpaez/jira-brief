@@ -11,6 +11,8 @@ import { jiraBaseUrlLabel } from './utils/jira.util'
 
 type WizardStep = 'jiraUrl' | 'csv'
 
+const CURRENT_YEAR = new Date().getFullYear()
+
 function toIsoInput(dateParts: { year: number; month: number; day: number }): string {
   const month = String(dateParts.month).padStart(2, '0')
   const day = String(dateParts.day).padStart(2, '0')
@@ -234,7 +236,7 @@ export default function App() {
       )}
 
       <footer className="footer">
-        <span>© {new Date().getFullYear()} DiegoIpaez</span>
+        <span>© {CURRENT_YEAR} DiegoIpaez</span>
         <span aria-hidden="true">·</span>
         <a
           className="footer-link"
