@@ -8,7 +8,6 @@ export type DateParts = {
   minute: number
 }
 
-/** Abbreviated month names as they appear in a Spanish Jira export. */
 const MONTH_ABBREVIATIONS: Record<string, number> = {
   ene: 1,
   feb: 2,
@@ -24,7 +23,6 @@ const MONTH_ABBREVIATIONS: Record<string, number> = {
   dic: 12,
 }
 
-/** Full month names, for the long date printed in the PDF header. */
 const MONTH_NAMES = [
   'enero',
   'febrero',
@@ -40,14 +38,9 @@ const MONTH_NAMES = [
   'diciembre',
 ]
 
-/** Capturing groups in order: day, month, year, hour, minute, am/pm. */
 const JIRA_DATE_PATTERN =
   /^(\d{1,2})\/([a-záé]{3,})\/(\d{2,4})\s+(\d{1,2}):(\d{2})\s*(am|pm)$/i
 
-/**
- * Custom parser for the Spanish Jira format: "21/sep/26 2:07 AM".
- * It does not use Date.parse, which does not recognize abbreviated Spanish months.
- */
 export function parseJiraDate(value: string): DateParts | null {
   const trimmedValue = (value ?? '').trim()
   if (!trimmedValue) return null
@@ -57,8 +50,6 @@ export function parseJiraDate(value: string): DateParts | null {
 
   const [, dayText, monthText, yearText, hourText, minuteText, meridiemText] = match
 
-  // The pattern accepts 3+ letters, so the month still has to be checked against
-  // the map: "24/xxx/26 1:00 PM" matches the pattern but is not a real date.
   const month = MONTH_ABBREVIATIONS[monthText.toLowerCase()]
   if (month === undefined) return null
 
@@ -69,7 +60,6 @@ export function parseJiraDate(value: string): DateParts | null {
   let year = Number(yearText)
   if (year < 100) year = year <= 68 ? 2000 + year : 1900 + year
 
-  // The format uses a 12-hour clock: "13:00 PM" does not exist and is rejected.
   if (day < 1 || day > 31 || hourIn12HourClock < 1 || hourIn12HourClock > 12 || minute > 59) {
     return null
   }
@@ -84,11 +74,6 @@ function padTwoDigits(value: number): string {
   return String(value).padStart(2, '0')
 }
 
-/**
- * Integer YYYYMMDD key used to compare whole days without timezone theory.
- * Comparing timestamps would make "until 29/Sep" (midnight) exclude an issue
- * updated at 9:17 PM.
- */
 export function dayKey(dateParts: DateParts): number {
   return dateParts.year * 10000 + dateParts.month * 100 + dateParts.day
 }
@@ -115,7 +100,6 @@ export function fieldLabel(field: DateField): string {
   return FIELD_LABEL[field]
 }
 
-/** "29 de septiembre de 2026" — for the PDF header. */
 export function formatLongDate(isoDate: string): string {
   const [yearText, monthText, dayText] = isoDate.split('-')
   const year = Number(yearText)

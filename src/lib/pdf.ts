@@ -26,12 +26,6 @@ export type ReportOptions = {
   jiraBaseUrl: string
 }
 
-/**
- * jspdf-autotable v5 types `jsPDFDocument` as `any` and `autoTable()` returns
- * nothing, so `lastAutoTable` does not show up in the types even though it is
- * assigned at runtime. This accessor recovers the final Y coordinate of the
- * last drawn table.
- */
 type WithLastTable = { lastAutoTable?: { finalY: number } }
 
 function lastTableY(pdfDocument: unknown, fallbackY: number): number {
@@ -97,7 +91,6 @@ function drawIssuesTable(pdfDocument: jsPDF, options: ReportOptions, totalSecond
     footStyles: { fillColor: ROW_GRAY, textColor: BRAND_BLUE, fontStyle: 'bold', fontSize: 9 },
     alternateRowStyles: { fillColor: ROW_GRAY },
     columnStyles: {
-      // The key is only painted blue when it becomes a clickable link.
       0: { cellWidth: 18, textColor: jiraBaseUrl === '' ? [0, 0, 0] : LINK_BLUE },
       1: { cellWidth: 'auto' },
       2: { cellWidth: 40 },
@@ -106,8 +99,6 @@ function drawIssuesTable(pdfDocument: jsPDF, options: ReportOptions, totalSecond
       5: { cellWidth: 28, fontSize: 7 },
       6: { cellWidth: 26, halign: 'right', fontStyle: 'bold' },
     },
-    // The key is already rendered by the table: only the clickable area is added
-    // on top of the drawn cell, which avoids drawing the text twice.
     didDrawCell: (data) => {
       if (
         jiraBaseUrl === '' ||

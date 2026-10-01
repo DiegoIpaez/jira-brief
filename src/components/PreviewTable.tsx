@@ -6,7 +6,6 @@ import type { Issue } from '../lib/csv'
 type Props = {
   rows: Issue[]
   totalSeconds: number
-  /** Instance root used to link each issue key; empty disables the links. */
   jiraBaseUrl: string
 }
 

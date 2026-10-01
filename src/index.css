@@ -1,5 +1,5 @@
 :root {
-  --blue: #0f3f78;
+  --blue: #1768DB;
   --blue-light: #1d5aa8;
   --gray-bg: #f4f6f9;
   --gray-border: #d8dee7;
@@ -31,7 +31,6 @@ body {
   padding: 32px 20px 64px;
 }
 
-/* ---------- header ---------- */
 .header {
   margin-bottom: 28px;
 }
@@ -47,7 +46,6 @@ body {
   color: var(--gray-text);
 }
 
-/* ---------- wizard steps ---------- */
 .steps {
   display: flex;
   flex-wrap: wrap;
@@ -129,7 +127,6 @@ body {
   white-space: nowrap;
 }
 
-/* ---------- jira url form ---------- */
 .jira-url-card {
   display: flex;
   flex-direction: column;
@@ -180,7 +177,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* ---------- drop zone ---------- */
 .dropzone {
   border: 2px dashed var(--gray-border);
   border-radius: 12px;
@@ -206,7 +202,6 @@ button:disabled {
   color: var(--gray-text);
 }
 
-/* ---------- buttons ---------- */
 button {
   font: inherit;
   cursor: pointer;
@@ -237,7 +232,6 @@ button {
   background: #f2f6fb;
 }
 
-/* ---------- alerts ---------- */
 .alert {
   border-radius: 8px;
   padding: 12px 14px;
@@ -257,7 +251,6 @@ button {
   border: 1px solid #f0dcae;
 }
 
-/* ---------- file bar ---------- */
 .file-bar {
   display: flex;
   flex-wrap: wrap;
@@ -278,7 +271,6 @@ button {
   gap: 8px;
 }
 
-/* ---------- filters ---------- */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -322,12 +314,10 @@ button {
   align-self: center;
 }
 
-/* ---------- actions ---------- */
 .actions {
   margin: 0 0 18px;
 }
 
-/* ---------- tables ---------- */
 .table-wrap {
   overflow-x: auto;
   background: #fff;
@@ -397,7 +387,6 @@ button {
   border-bottom: none;
 }
 
-/* ---------- summary ---------- */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -439,7 +428,6 @@ button {
   font-size: 14px;
 }
 
-/* ---------- responsive ---------- */
 @media (max-width: 640px) {
   .app {
     padding: 20px 14px 48px;

@@ -11,14 +11,12 @@ import { jiraBaseUrlLabel } from './lib/jira'
 
 type WizardStep = 'jiraUrl' | 'csv'
 
-/** Date parts -> "YYYY-MM-DD", the value format of <input type="date">. */
 function toIsoInput(dateParts: { year: number; month: number; day: number }): string {
   const month = String(dateParts.month).padStart(2, '0')
   const day = String(dateParts.day).padStart(2, '0')
   return `${dateParts.year}-${month}-${day}`
 }
 
-/** "YYYY-MM-DD" -> comparable YYYYMMDD key. */
 function isoToDayKey(isoDate: string): number {
   return Number(isoDate.replace(/-/g, ''))
 }
@@ -53,7 +51,6 @@ export default function App() {
     setFileName(selectedFileName)
     setRows(parseResult.rows)
     setSkippedCount(parseResult.skipped)
-    // Preload the range with the file extremes so it does not start empty.
     setFromDate(toIsoInput(parseResult.min))
     setToDate(toIsoInput(parseResult.max))
   }
@@ -88,8 +85,6 @@ export default function App() {
 
   const totalSeconds = useMemo(() => sumSeconds(filteredRows), [filteredRows])
 
-  // jsPDF (and its html2canvas/dompurify dependencies) weighs ~380 kB: it is loaded
-  // only when the PDF is requested, not when the app opens.
   async function download(): Promise<void> {
     const { downloadPdf } = await import('./lib/pdf')
     downloadPdf({ rows: filteredRows, fromDate, toDate, field, fileName, jiraBaseUrl })

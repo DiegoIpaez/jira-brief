@@ -8,7 +8,7 @@ export type Issue = {
   status: string
   created: DateParts
   updated: DateParts
-  /** Raw seconds. 0 when the field is empty or not numeric. */
+  
   seconds: number
 }
 
@@ -26,7 +26,6 @@ const COLUMNS = {
   updated: 'Actualizada',
 } as const
 
-/** Only the columns the report actually uses. */
 const REQUIRED_COLUMNS: string[] = [
   COLUMNS.issueKey,
   COLUMNS.summary,
@@ -37,7 +36,6 @@ const REQUIRED_COLUMNS: string[] = [
   COLUMNS.updated,
 ]
 
-/** Normalizes headers: strips BOM and extra whitespace. */
 function normalizeHeader(header: string): string {
   return (header ?? '').replace(/^﻿/, '').trim()
 }
@@ -51,11 +49,6 @@ function parseSeconds(value: string): number {
   return 0
 }
 
-/**
- * Narrowest and widest date present in the file, so the app can preload the
- * filters. Sorting by day key avoids building Date objects, which would drag
- * in the browser timezone for no benefit.
- */
 function findDateExtremes(issues: Issue[]): { min: DateParts; max: DateParts } {
   const allDates = issues.flatMap((issue) => [issue.created, issue.updated])
   const datesByDay = [...allDates].sort(

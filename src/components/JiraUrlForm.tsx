@@ -3,7 +3,6 @@ import { jiraUrlSchema, normalizeJiraBaseUrl } from '../lib/jira'
 import { readValidationMessages } from '../lib/validation'
 
 type Props = {
-  /** Previously accepted URL, so going back to this step keeps the value. */
   initialUrl: string
   onSubmitUrl: (jiraBaseUrl: string) => void
   onCancel: (() => void) | null
@@ -36,8 +35,6 @@ export function JiraUrlForm({ initialUrl, onSubmitUrl, onCancel }: Props) {
         <span>URL del tablero de Jira</span>
         <form.Field
           name="jiraBaseUrl"
-          // TanStack Form exposes the field instance through a render prop,
-          // which is by design and not the same as passing JSX children.
           // oxlint-disable-next-line react/no-children-prop
           children={(field) => {
             const errorMessages = readValidationMessages(field.state.meta.errors)
