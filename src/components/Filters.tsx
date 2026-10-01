@@ -1,4 +1,4 @@
-import { fieldLabel, type DateField } from '../lib/date'
+import { fieldLabel, type DateField } from '../utils/date.util'
 
 type Props = {
   fromDate: string

@@ -1,5 +1,5 @@
 import Papa from 'papaparse'
-import { dayKey, parseJiraDate, type DateParts } from './date'
+import { dayKey, parseJiraDate, type DateParts } from '../utils/date.util'
 
 export type Issue = {
   issueKey: string
@@ -8,7 +8,6 @@ export type Issue = {
   status: string
   created: DateParts
   updated: DateParts
-  
   seconds: number
 }
 
@@ -16,28 +15,72 @@ export type ParseResult =
   | { ok: true; rows: Issue[]; skipped: number; min: DateParts; max: DateParts }
   | { ok: false; error: string }
 
-const COLUMNS = {
-  issueKey: 'Clave de incidencia',
-  summary: 'Resumen',
-  timeSpent: 'Σ Tiempo empleado',
-  assignee: 'Persona asignada',
-  status: 'Estado',
-  created: 'Creada',
-  updated: 'Actualizada',
-} as const
+const COLUMN_FIELDS = [
+  'issueKey',
+  'summary',
+  'timeSpent',
+  'assignee',
+  'status',
+  'created',
+  'updated',
+] as const
 
-const REQUIRED_COLUMNS: string[] = [
-  COLUMNS.issueKey,
-  COLUMNS.summary,
-  COLUMNS.timeSpent,
-  COLUMNS.assignee,
-  COLUMNS.status,
-  COLUMNS.created,
-  COLUMNS.updated,
-]
+type ColumnField = (typeof COLUMN_FIELDS)[number]
+
+const COLUMN_ALIASES: Record<ColumnField, readonly string[]> = {
+  issueKey: ['Clave de incidencia', 'Issue key'],
+  summary: ['Resumen', 'Summary'],
+  timeSpent: ['Σ Tiempo empleado', 'Σ Time Spent', 'Tiempo empleado', 'Time Spent'],
+  assignee: ['Persona asignada', 'Assignee'],
+  status: ['Estado', 'Status'],
+  created: ['Creada', 'Created'],
+  updated: ['Actualizada', 'Updated'],
+}
+
+type ResolvedColumns = Record<ColumnField, string>
+
+type ColumnResolution = { ok: true; columns: ResolvedColumns } | { ok: false; missing: ColumnField[] }
 
 function normalizeHeader(header: string): string {
   return (header ?? '').replace(/^﻿/, '').trim()
+}
+
+function headerMatchKey(header: string): string {
+  return normalizeHeader(header)
+    .replace(/Σ/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+function missingColumnLabel(field: ColumnField): string {
+  return COLUMN_ALIASES[field].join(' / ')
+}
+
+function resolveColumns(rawHeaders: string[]): ColumnResolution {
+  const availableHeaders = new Map<string, string>()
+
+  for (const rawHeader of rawHeaders) {
+    availableHeaders.set(headerMatchKey(rawHeader), rawHeader)
+  }
+
+  const columns = {} as ResolvedColumns
+  const missing: ColumnField[] = []
+
+  for (const field of COLUMN_FIELDS) {
+    const matchedHeader = COLUMN_ALIASES[field]
+      .map((alias) => availableHeaders.get(headerMatchKey(alias)))
+      .find((header) => header !== undefined)
+
+    if (matchedHeader === undefined) {
+      missing.push(field)
+      continue
+    }
+
+    columns[field] = matchedHeader
+  }
+
+  return missing.length > 0 ? { ok: false, missing } : { ok: true, columns }
 }
 
 function parseSeconds(value: string): number {
@@ -67,36 +110,36 @@ export function parseCsv(text: string): ParseResult {
     skipEmptyLines: 'greedy',
   })
 
-  const headerFields = (parseResult.meta.fields ?? []).map(normalizeHeader)
-  const missingColumns = REQUIRED_COLUMNS.filter(
-    (requiredColumn) => !headerFields.includes(requiredColumn),
-  )
+  const rawHeaders = parseResult.meta.fields ?? []
+  const headerFields = rawHeaders.map(normalizeHeader)
+  const resolution = resolveColumns(rawHeaders)
 
-  if (missingColumns.length > 0) {
+  if (!resolution.ok) {
     const foundList = headerFields.length > 0 ? headerFields.join(', ') : '(ninguna)'
-    const missingList = missingColumns.join(', ')
+    const missingList = resolution.missing.map(missingColumnLabel).join(', ')
     return {
       ok: false,
       error: `Faltan columnas obligatorias en el CSV: ${missingList}. Se encontraron: ${foundList}.`,
     }
   }
 
+  const { columns } = resolution
   const issues: Issue[] = []
   let skippedCount = 0
 
   for (const rawRow of parseResult.data) {
-    const createdParts = parseJiraDate(normalizeHeader(rawRow[COLUMNS.created]))
-    const updatedParts = parseJiraDate(normalizeHeader(rawRow[COLUMNS.updated]))
+    const createdParts = parseJiraDate(normalizeHeader(rawRow[columns.created]))
+    const updatedParts = parseJiraDate(normalizeHeader(rawRow[columns.updated]))
 
     if (!createdParts || !updatedParts) {
       skippedCount += 1
       continue
     }
 
-    const issueKey = normalizeHeader(rawRow[COLUMNS.issueKey])
-    const summary = normalizeHeader(rawRow[COLUMNS.summary])
-    const assigneeRaw = normalizeHeader(rawRow[COLUMNS.assignee])
-    const statusRaw = normalizeHeader(rawRow[COLUMNS.status])
+    const issueKey = normalizeHeader(rawRow[columns.issueKey])
+    const summary = normalizeHeader(rawRow[columns.summary])
+    const assigneeRaw = normalizeHeader(rawRow[columns.assignee])
+    const statusRaw = normalizeHeader(rawRow[columns.status])
 
     issues.push({
       issueKey,
@@ -105,7 +148,7 @@ export function parseCsv(text: string): ParseResult {
       status: statusRaw || '—',
       created: createdParts,
       updated: updatedParts,
-      seconds: parseSeconds(rawRow[COLUMNS.timeSpent]),
+      seconds: parseSeconds(rawRow[columns.timeSpent]),
     })
   }
 

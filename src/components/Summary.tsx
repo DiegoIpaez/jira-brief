@@ -1,4 +1,4 @@
-import { formatDuration } from '../lib/time'
+import { formatDuration } from '../utils/time.util'
 import { countWithoutTime, summarizeByAssignee } from '../lib/aggregate'
 import type { Issue } from '../lib/csv'
 
