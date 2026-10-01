@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form'
-import { jiraUrlSchema, normalizeJiraBaseUrl } from '../lib/jira'
-import { readValidationMessages } from '../lib/validation'
+import { jiraUrlSchema, normalizeJiraBaseUrl } from '../utils/jira.util'
+import { readValidationMessages } from '../utils/validation.util'
 
 type Props = {
   initialUrl: string

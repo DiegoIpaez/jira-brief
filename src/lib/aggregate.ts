@@ -1,5 +1,5 @@
 import type { Issue } from './csv'
-import { hasNoTime } from './time'
+import { hasNoTime } from '../utils/time.util'
 
 export type AssigneeTotal = {
   assignee: string

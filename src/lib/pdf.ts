@@ -1,9 +1,9 @@
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
-import { formatDateTime, formatLongDate } from './date'
-import { formatDuration } from './time'
+import { formatDateTime, formatLongDate } from '../utils/date.util'
+import { formatDuration } from '../utils/time.util'
 import { countWithoutTime, sumSeconds, summarizeByAssignee } from './aggregate'
-import { buildIssueUrl } from './jira'
+import { buildIssueUrl } from '../utils/jira.util'
 import type { Issue } from './csv'
 
 const BRAND_BLUE: [number, number, number] = [15, 63, 120]

@@ -1,6 +1,6 @@
-import { formatDateTime } from '../lib/date'
-import { buildIssueUrl } from '../lib/jira'
-import { formatDuration } from '../lib/time'
+import { formatDateTime } from '../utils/date.util'
+import { buildIssueUrl } from '../utils/jira.util'
+import { formatDuration } from '../utils/time.util'
 import type { Issue } from '../lib/csv'
 
 type Props = {

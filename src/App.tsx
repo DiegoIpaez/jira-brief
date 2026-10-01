@@ -4,10 +4,10 @@ import { Filters } from './components/Filters'
 import { JiraUrlForm } from './components/JiraUrlForm'
 import { PreviewTable } from './components/PreviewTable'
 import { Summary } from './components/Summary'
-import { dayKey, fieldLabel, formatLongDate, type DateField } from './lib/date'
+import { dayKey, fieldLabel, formatLongDate, type DateField } from './utils/date.util'
 import { parseCsv, type Issue } from './lib/csv'
 import { sumSeconds } from './lib/aggregate'
-import { jiraBaseUrlLabel } from './lib/jira'
+import { jiraBaseUrlLabel } from './utils/jira.util'
 
 type WizardStep = 'jiraUrl' | 'csv'
 
