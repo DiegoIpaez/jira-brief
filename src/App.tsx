@@ -87,7 +87,7 @@ export default function App() {
 
   async function download(): Promise<void> {
     const { downloadPdf } = await import('./lib/pdf')
-    downloadPdf({ rows: filteredRows, fromDate, toDate, field, fileName, jiraBaseUrl })
+    downloadPdf({ rows: filteredRows, fromDate, toDate, jiraBaseUrl })
   }
 
   const hasFile = rows.length > 0
@@ -147,12 +147,12 @@ export default function App() {
         <FileSelector onFile={handleFileSelected} onError={handleError} />
       ) : (
         <>
-          <div className="file-bar">
-            <span>
+          <div className="file-card">
+            <div className="file-card-info">
               <strong>{fileName}</strong> · {rows.length} incidencias leídas
               {skippedCount > 0 && ` · ${skippedCount} omitidas por fecha inválida`}
-            </span>
-            <span className="file-bar-actions">
+            </div>
+            <div className="file-card-actions">
               <button type="button" className="btn-secondary" onClick={resetToFilePicker}>
                 Cambiar archivo
               </button>
@@ -163,7 +163,7 @@ export default function App() {
               >
                 Cambiar URL de Jira
               </button>
-            </span>
+            </div>
           </div>
 
           {skippedCount > 0 && (
@@ -173,14 +173,33 @@ export default function App() {
             </div>
           )}
 
-          <Filters
-            fromDate={fromDate}
-            toDate={toDate}
-            field={field}
-            onFromDateChange={setFromDate}
-            onToDateChange={setToDate}
-            onFieldChange={setField}
-          />
+          <div className="toolbar">
+            <Filters
+              fromDate={fromDate}
+              toDate={toDate}
+              field={field}
+              onFromDateChange={setFromDate}
+              onToDateChange={setToDate}
+              onFieldChange={setField}
+            />
+            <div className="toolbar-actions">
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={download}
+                disabled={isRangeInverted || filteredRows.length === 0}
+                title={
+                  isRangeInverted
+                    ? 'El rango está invertido'
+                    : filteredRows.length === 0
+                      ? 'No hay incidencias en el rango seleccionado'
+                      : 'Descargar PDF'
+                }
+              >
+                Descargar PDF
+              </button>
+            </div>
+          </div>
 
           {isRangeInverted ? (
             <div className="alert error" role="alert">
@@ -192,12 +211,16 @@ export default function App() {
               {formatLongDate(toDate)} usando la fecha {fieldLabel(field)}.
             </div>
           ) : (
-            <>
-              <div className="actions">
-                <button type="button" className="btn-primary" onClick={download}>
-                  Descargar PDF
-                </button>
-              </div>
+            <section className="preview" aria-labelledby="preview-title">
+              <header className="preview-header">
+                <h2 id="preview-title" className="preview-title">
+                  Vista previa
+                </h2>
+                <span className="preview-count">
+                  {filteredRows.length}{' '}
+                  {filteredRows.length === 1 ? 'incidencia' : 'incidencias'}
+                </span>
+              </header>
 
               <PreviewTable
                 rows={filteredRows}
@@ -205,10 +228,23 @@ export default function App() {
                 jiraBaseUrl={jiraBaseUrl}
               />
               <Summary rows={filteredRows} totalSeconds={totalSeconds} />
-            </>
+            </section>
           )}
         </>
       )}
+
+      <footer className="footer">
+        <span>© {new Date().getFullYear()} DiegoIpaez</span>
+        <span aria-hidden="true">·</span>
+        <a
+          className="footer-link"
+          href="https://github.com/DiegoIpaez"
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub
+        </a>
+      </footer>
     </div>
   )
 }

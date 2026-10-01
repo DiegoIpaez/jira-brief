@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
-import { fieldLabel, formatDateTime, formatLongDate, type DateField } from './date'
+import { formatDateTime, formatLongDate } from './date'
 import { formatDuration } from './time'
 import { countWithoutTime, sumSeconds, summarizeByAssignee } from './aggregate'
 import { buildIssueUrl } from './jira'
@@ -21,8 +21,6 @@ export type ReportOptions = {
   rows: Issue[]
   fromDate: string
   toDate: string
-  field: DateField
-  fileName: string
   jiraBaseUrl: string
 }
 
@@ -43,16 +41,10 @@ function drawHeader(pdfDocument: jsPDF, options: ReportOptions): void {
   pdfDocument.setFont('helvetica', 'normal')
   pdfDocument.setTextColor(...TEXT_GRAY)
   pdfDocument.text(
-    `Rango: ${formatLongDate(options.fromDate)} — ${formatLongDate(options.toDate)} (ambos inclusive)`,
+    `Fecha desde: ${formatLongDate(options.fromDate)} — Fecha hasta: ${formatLongDate(options.toDate)}`,
     PAGE_MARGIN,
     25,
   )
-  pdfDocument.text(
-    `Fecha usada como filtro: ${fieldLabel(options.field)}`,
-    PAGE_MARGIN,
-    30.5,
-  )
-  pdfDocument.text(`Archivo de origen: ${options.fileName}`, PAGE_MARGIN, 36)
 }
 
 function drawIssuesTable(pdfDocument: jsPDF, options: ReportOptions, totalSeconds: number): void {
@@ -69,7 +61,7 @@ function drawIssuesTable(pdfDocument: jsPDF, options: ReportOptions, totalSecond
   const jiraBaseUrl = options.jiraBaseUrl.trim()
 
   autoTable(pdfDocument, {
-    startY: 42,
+    startY: 32,
     head: [
       [
         'Clave',
